@@ -67,7 +67,7 @@ public class MainViewController implements Initializable {
 			
 		} catch (IOException e) {
 
-			Alerts.showAlert("IO Exception", "Erro Carregando a paginna", e.getMessage(), AlertType.ERROR);
+			Alerts.showAlert("IO Exception", "Erro Carregando a pagina", e.getMessage(), AlertType.ERROR);
 		}
 
 	}
