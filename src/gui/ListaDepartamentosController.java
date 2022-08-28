@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,9 +15,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.entities.Departamentos;
+import model.services.DepartamentosService;
 
 public class ListaDepartamentosController implements Initializable{
 
+	
+	private DepartamentosService service;
+	
 	@FXML
 	private TableView<Departamentos> tableViewDepartamentos;
 	@FXML
@@ -23,6 +30,17 @@ public class ListaDepartamentosController implements Initializable{
 	private TableColumn<Departamentos, String> tableColumnName;
 	@FXML
 	private Button btNovo;
+	
+	private ObservableList<Departamentos> obsList;
+	
+	
+	public void setDepartamentosService(DepartamentosService service) {
+		
+		this.service = service;
+		
+	}
+	
+	
 	
 	@FXML
 	public void onBtNewAction() {
@@ -43,7 +61,7 @@ public class ListaDepartamentosController implements Initializable{
 	private void initializeNodes() {
 		
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
-		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("nome"));
+		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		
 		//metodo para fazer Table View acompanhar tamanho da janela
 		Stage stage = (Stage) Main.getMainScene().getWindow();
@@ -51,6 +69,15 @@ public class ListaDepartamentosController implements Initializable{
 	}
 
 	
-	
+	public void updateTableView() {
+		
+		if (service == null) {
+			throw new IllegalStateException("Serviço não Encontrado");
+		}
+		 List<Departamentos> list = service.findAll();
+		 obsList = FXCollections.observableArrayList(list);
+		 tableViewDepartamentos.setItems(obsList);
+		
+	}
 	
 }
