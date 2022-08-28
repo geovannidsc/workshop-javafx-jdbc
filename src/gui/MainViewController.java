@@ -1,9 +1,9 @@
 package gui;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -16,7 +16,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-import model.entities.Departamentos;
 import model.services.DepartamentosService;
 
 public class MainViewController implements Initializable {
@@ -38,14 +37,19 @@ public class MainViewController implements Initializable {
 	@FXML
 	public void onMenuItemDepartamentosAction() {
 
-		//loadView("/gui/ListaDepartamentos.fxml");
-		loadView2("/gui/ListaDepartamentos.fxml");
+		loadView("/gui/ListaDepartamentos.fxml", (ListaDepartamentosController controller) ->{
+			
+			controller.setDepartamentosService(new DepartamentosService());
+			controller.updateTableView();
+			
+		});
+		
 	}
 
 	@FXML
 	public void onMenuItemSobreAction() {
 
-		loadView("/gui/Sobre.fxml");
+		loadView("/gui/Sobre.fxml",x -> {} );
 
 	}
 
@@ -54,18 +58,21 @@ public class MainViewController implements Initializable {
 
 	}
 
-	private synchronized void loadView(String nomeAbsoluto) {
+	private synchronized <T> void loadView(String nomeAbsoluto, Consumer<T> acaoDeInicializacao) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(nomeAbsoluto));
 			VBox newVBox = loader.load();
-			
+
 			Scene mainScene = Main.getMainScene();
 			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
-			
+
 			Node mainMenu = mainVBox.getChildren().get(0);
 			mainVBox.getChildren().clear();
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+			T controller = loader.getController();
+			acaoDeInicializacao.accept(controller);
 			
 		} catch (IOException e) {
 
@@ -73,39 +80,5 @@ public class MainViewController implements Initializable {
 		}
 
 	}
-	
-	private synchronized void loadView2(String nomeAbsoluto) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(nomeAbsoluto));
-			VBox newVBox = loader.load();
-			
-			Scene mainScene = Main.getMainScene();
-			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
-			
-			Node mainMenu = mainVBox.getChildren().get(0);
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(newVBox.getChildren());
-			
-			ListaDepartamentosController controller = loader.getController();
-			controller.setDepartamentosService(new DepartamentosService());
-			controller.updateTableView();
-			
-		} catch (IOException e) {
-
-			Alerts.showAlert("IO Exception", "Erro Carregando a pagina", e.getMessage(), AlertType.ERROR);
-		}
-
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
