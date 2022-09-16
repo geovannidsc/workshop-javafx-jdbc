@@ -1,4 +1,3 @@
-
 package model.entities;
 
 import java.io.Serializable;
@@ -61,6 +60,6 @@ public class Departamentos implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Departamentos [id=" + id + ", nome=" + name + "]";
+		return "Departamentos [id=" + id + ", name=" + name + "]";
 	}
 }
