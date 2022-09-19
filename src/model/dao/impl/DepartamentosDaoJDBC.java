@@ -28,7 +28,7 @@ public class DepartamentosDaoJDBC implements DepartamentosDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-				"SELECT * FROM department WHERE Id = ?");
+				"SELECT * FROM departamentos WHERE Id = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			if (rs.next()) {
@@ -81,7 +81,7 @@ public class DepartamentosDaoJDBC implements DepartamentosDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-				"INSERT INTO department " +
+				"INSERT INTO departamentos " +
 				"(Name) " +
 				"VALUES " +
 				"(?)", 
@@ -115,7 +115,7 @@ public class DepartamentosDaoJDBC implements DepartamentosDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-				"UPDATE department " +
+				"UPDATE departamentos " +
 				"SET Name = ? " +
 				"WHERE Id = ?");
 
@@ -137,7 +137,7 @@ public class DepartamentosDaoJDBC implements DepartamentosDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-				"DELETE FROM department WHERE Id = ?");
+				"DELETE FROM departamentos WHERE Id = ?");
 
 			st.setInt(1, id);
 
