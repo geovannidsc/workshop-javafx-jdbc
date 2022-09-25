@@ -17,6 +17,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import model.services.DepartamentosService;
+import model.services.FuncionariosService;
 
 public class MainViewController implements Initializable {
 
@@ -30,26 +31,33 @@ public class MainViewController implements Initializable {
 	@FXML
 	public void onMenuItemFuncionariosAction() {
 
-		System.out.println("onMenuItemFuncionariosAction");
+		loadView("/gui/ListaFuncionarios.fxml", (ListaFuncionariosController controller) -> {
+
+			controller.setFuncionariosService(new FuncionariosService());
+			controller.updateTableView();
+
+		});
+
 
 	}
 
 	@FXML
 	public void onMenuItemDepartamentosAction() {
 
-		loadView("/gui/ListaDepartamentos.fxml", (ListaDepartamentosController controller) ->{
-			
+		loadView("/gui/ListaDepartamentos.fxml", (ListaDepartamentosController controller) -> {
+
 			controller.setDepartamentosService(new DepartamentosService());
 			controller.updateTableView();
-			
+
 		});
-		
+
 	}
 
 	@FXML
 	public void onMenuItemSobreAction() {
 
-		loadView("/gui/Sobre.fxml",x -> {} );
+		loadView("/gui/Sobre.fxml", x -> {
+		});
 
 	}
 
@@ -70,10 +78,10 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().clear();
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
-			
+
 			T controller = loader.getController();
 			acaoDeInicializacao.accept(controller);
-			
+
 		} catch (IOException e) {
 
 			Alerts.showAlert("IO Exception", "Erro Carregando a pagina", e.getMessage(), AlertType.ERROR);

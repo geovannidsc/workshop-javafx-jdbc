@@ -2,7 +2,7 @@ package model.entities;
 
 import java.io.Serializable;
 
-public class Departamentos implements Serializable {
+public class  Departamentos implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

@@ -2,6 +2,7 @@ package gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,29 +30,40 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import model.entities.Departamentos;
+import model.entities.Funcionarios;
 import model.services.DepartamentosService;
+import model.services.FuncionariosService;
 
-public class ListaDepartamentosController implements Initializable, DataChangeListener {
+public class ListaFuncionariosController implements Initializable, DataChangeListener {
 
-	private DepartamentosService service;
+	private FuncionariosService service;
+		
 
 	@FXML
-	private TableView<Departamentos> tableViewDepartamentos;
+	private TableView<Funcionarios> tableViewFuncionarios;
 	@FXML
-	private TableColumn<Departamentos, Integer> tableColumnId;
+	private TableColumn<Funcionarios, Integer> tableColumnId;
 	@FXML
-	private TableColumn<Departamentos, String> tableColumnName;
+	private TableColumn<Funcionarios, String> tableColumnName;
 	@FXML
-	private TableColumn<Departamentos, Departamentos> tableColumnEDIT;
+	private TableColumn<Funcionarios, String> tableColumnEmail;
 	@FXML
-	private TableColumn<Departamentos, Departamentos> tableColumnREMOVE;
+	private TableColumn<Funcionarios, Date> tableColumnBirthDate;
+	@FXML
+	private TableColumn<Funcionarios, Double> tableColumnBaseSalary;
+	@FXML
+	private TableColumn<Funcionarios, Funcionarios> tableColumnEDIT;
+	@FXML
+	private TableColumn<Funcionarios, Funcionarios> tableColumnREMOVE;
+	@FXML
+	private TableColumn<Funcionarios, Integer> tableColumnDepartamento;
 	@FXML
 	private Button btNovo;
 
-	private ObservableList<Departamentos> obsList;
+	
+	private ObservableList<Funcionarios> obsList;
 
-	public void setDepartamentosService(DepartamentosService service) {
+	public void setFuncionariosService(FuncionariosService service) {
 
 		this.service = service;
 
@@ -60,8 +72,8 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 	@FXML
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
-		Departamentos obj = new Departamentos();
-		createDialogForm(obj, "/gui/FormDepartamentos.fxml", parentStage);
+		Funcionarios obj = new Funcionarios();
+		createDialogForm(obj, "/gui/FormFuncionarios.fxml", parentStage);
 	}
 
 	@Override
@@ -76,10 +88,18 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
 		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-
+		tableColumnEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+		tableColumnBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+		Utils.formatTableColumnDate(tableColumnBirthDate, "dd/MM/yyyy");
+		tableColumnBaseSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
+		Utils.formatTableColumnDouble(tableColumnBaseSalary, 2);
+		
+		//tableColumnDepartamento.setCellValueFactory(new PropertyValueFactory<>("nDep"));
 		// metodo para fazer Table View acompanhar tamanho da janela
 		Stage stage = (Stage) Main.getMainScene().getWindow();
-		tableViewDepartamentos.prefHeightProperty().bind(stage.heightProperty());
+		tableViewFuncionarios.prefHeightProperty().bind(stage.heightProperty());
+		
+		
 	}
 
 	public void updateTableView() {
@@ -87,28 +107,29 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 		if (service == null) {
 			throw new IllegalStateException("Serviço não Encontrado");
 		}
-		List<Departamentos> list = service.findAll();
+		List<Funcionarios> list = service.findAll();
 		obsList = FXCollections.observableArrayList(list);
-		tableViewDepartamentos.setItems(obsList);
+		tableViewFuncionarios.setItems(obsList);
 		initEditButtons();
 		initRemoveButtons();
 
 	}
 
-	private void createDialogForm(Departamentos obj, String absoluteName, Stage parentStage) {
+	private void createDialogForm(Funcionarios obj, String absoluteName, Stage parentStage) {
 
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
 
-			DepartamentosFormController controller = loader.getController();
-			controller.setDepartamentos(obj);
-			controller.setDepartamentosService(new DepartamentosService());
+			FuncionariosFormController controller = loader.getController();
+			controller.setFuncionarios(obj);
+			controller.setServices(new FuncionariosService(), new DepartamentosService());
+			controller.loadAssocietedObjects();
 			controller.subscribeDataChangeListener(this);
 			controller.updateFormData();
 
 			Stage dialogStage = new Stage();
-			dialogStage.setTitle("Entrar com Departamento");
+			dialogStage.setTitle("Entrar com Funcionarios");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.setResizable(false);
 			dialogStage.initOwner(parentStage);
@@ -116,7 +137,9 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 			dialogStage.showAndWait();
 
 		} catch (IOException e) {
-
+			
+			
+			e.printStackTrace();
 			Alerts.showAlert("IO Exception", "Erro loading view", e.getMessage(), AlertType.ERROR);
 
 		}
@@ -132,11 +155,11 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 
 	private void initEditButtons() {
 		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-		tableColumnEDIT.setCellFactory(param -> new TableCell<Departamentos, Departamentos>() {
+		tableColumnEDIT.setCellFactory(param -> new TableCell<Funcionarios, Funcionarios>() {
 			private final Button button = new Button("Editar");
 
 			@Override
-			protected void updateItem(Departamentos obj, boolean empty) {
+			protected void updateItem(Funcionarios obj, boolean empty) {
 				super.updateItem(obj, empty);
 				if (obj == null) {
 					setGraphic(null);
@@ -144,18 +167,18 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 				}
 				setGraphic(button);
 				button.setOnAction(
-						event -> createDialogForm(obj, "/gui/FormDepartamentos.fxml", Utils.currentStage(event)));
+						event -> createDialogForm(obj, "/gui/FormFuncionarios.fxml", Utils.currentStage(event)));
 			}
 		});
 	}
 
 	private void initRemoveButtons() {
 		tableColumnREMOVE.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-		tableColumnREMOVE.setCellFactory(param -> new TableCell<Departamentos, Departamentos>() {
+		tableColumnREMOVE.setCellFactory(param -> new TableCell<Funcionarios, Funcionarios>() {
 			private final Button button = new Button("remove");
 
 			@Override
-			protected void updateItem(Departamentos obj, boolean empty) {
+			protected void updateItem(Funcionarios obj, boolean empty) {
 				super.updateItem(obj, empty);
 				if (obj == null) {
 					setGraphic(null);
@@ -167,7 +190,7 @@ public class ListaDepartamentosController implements Initializable, DataChangeLi
 		});
 	}
 
-	private void removeEntity(Departamentos obj) {
+	private void removeEntity(Funcionarios obj) {
 
 		Optional<ButtonType> result = Alerts.showConfirmation("Confirmação", "Confirma a exclusão?");
 

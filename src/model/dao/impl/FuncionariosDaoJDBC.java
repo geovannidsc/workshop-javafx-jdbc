@@ -29,7 +29,7 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-					"INSERT INTO seller "
+					"INSERT INTO funcionarios "
 					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
 					+ "VALUES "
 					+ "(?, ?, ?, ?, ?)",
@@ -39,7 +39,7 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
 			st.setDouble(4, obj.getBaseSalary());
-			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(5, obj.getDepartamento().getId());
 			
 			int rowsAffected = st.executeUpdate();
 			
@@ -68,7 +68,7 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-					"UPDATE seller "
+					"UPDATE funcionarios "
 					+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
 					+ "WHERE Id = ?");
 			
@@ -76,7 +76,7 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
 			st.setDouble(4, obj.getBaseSalary());
-			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(5, obj.getDepartamento().getId());
 			st.setInt(6, obj.getId());
 			
 			st.executeUpdate();
@@ -93,7 +93,7 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 	public void deleteById(Integer id) {
 		PreparedStatement st = null;
 		try {
-			st = conn.prepareStatement("DELETE FROM seller WHERE Id = ?");
+			st = conn.prepareStatement("DELETE FROM funcionarios WHERE Id = ?");
 			
 			st.setInt(1, id);
 			
@@ -113,10 +113,10 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE seller.Id = ?");
+					"SELECT funcionarios.*,departamentos.Name as DepName "
+					+ "FROM funcionarios INNER JOIN departamentos "
+					+ "ON funcionarios.DepartmentId = departamentos.Id "
+					+ "WHERE funcionarios.Id = ?");
 			
 			st.setInt(1, id);
 			rs = st.executeQuery();
@@ -142,8 +142,8 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 		obj.setName(rs.getString("Name"));
 		obj.setEmail(rs.getString("Email"));
 		obj.setBaseSalary(rs.getDouble("BaseSalary"));
-		obj.setBirthDate(rs.getDate("BirthDate"));
-		obj.setDepartment(dep);
+		obj.setBirthDate(new java.util.Date(rs.getTimestamp("BirthDate").getTime()));
+		obj.setDepartamento(dep);
 		return obj;
 	}
 
@@ -160,9 +160,9 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
+					"SELECT funcionarios.*,departamentos.Name as DepName "
+					+ "FROM funcionarios INNER JOIN departamentos "
+					+ "ON funcionarios.DepartmentId = departamentos.Id "
 					+ "ORDER BY Name");
 			
 			rs = st.executeQuery();
@@ -194,18 +194,18 @@ public class FuncionariosDaoJDBC implements FuncionariosDao {
 	}
 
 	@Override
-	public List<Funcionarios> findByDepartment(Departamentos department) {
+	public List<Funcionarios> findByDepartment(Departamentos departamentos) {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
+					"SELECT funcionarios.*,departamentos.Name as DepName "
+					+ "FROM funcionarios INNER JOIN departamentos "
+					+ "ON funcionarios.DepartmentId = departamentos.Id "
 					+ "WHERE DepartmentId = ? "
 					+ "ORDER BY Name");
 			
-			st.setInt(1, department.getId());
+			st.setInt(1, departamentos.getId());
 			
 			rs = st.executeQuery();
 			

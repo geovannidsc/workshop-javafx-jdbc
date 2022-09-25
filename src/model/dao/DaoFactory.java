@@ -6,7 +6,7 @@ import model.dao.impl.FuncionariosDaoJDBC;
 
 public class DaoFactory {
 
-	public static FuncionariosDao createSellerDao() {
+	public static FuncionariosDao createFuncionariosDao() {
 		return new FuncionariosDaoJDBC(DB.getConnection());
 	}
 	
