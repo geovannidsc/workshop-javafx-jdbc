@@ -49,6 +49,8 @@ public class Funcionarios implements Serializable {
 		this.name = name;
 	}
 
+	
+
 	public String getEmail() {
 		return email;
 	}

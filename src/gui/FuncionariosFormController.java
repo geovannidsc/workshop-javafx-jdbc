@@ -1,14 +1,18 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import com.mysql.cj.util.Util;
 
 import db.DbException;
 import gui.listeners.DataChangeListener;
@@ -57,8 +61,7 @@ public class FuncionariosFormController implements Initializable {
 	private Button btCancel;
 
 	private ObservableList<Departamentos> obsList;
-	
-	
+
 	private Funcionarios entity;
 	private FuncionariosService service;
 	private DepartamentosService departamentoService;
@@ -119,10 +122,24 @@ public class FuncionariosFormController implements Initializable {
 		if (txtName.getText() == null || txtName.getText().trim().equals("")) {
 			exception.addError("name", "O campo não pode ser vazio");
 		}
+
+		if (dpBirthDate.getValue() == null) {
+			exception.addError("birthDate", "O campo não pode ser vazio");
+		} else {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			obj.setBirthDate(Date.from(instant));
+		}
+		obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+
+		obj.setDepartamento(comboBoxDepartamento.getValue());
+
 		obj.setName(txtName.getText());
 		if (exception.getErros().size() > 0) {
 			throw exception;
 		}
+
+		obj.setEmail(txtEmail.getText());
+		
 		return obj;
 	}
 
@@ -139,7 +156,7 @@ public class FuncionariosFormController implements Initializable {
 		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyyy");
 		Constraints.setTextFieldDouble(txtBaseSalary);
 		initializeComboBoxDepartamentos();
-		
+
 	}
 
 	@Override
@@ -157,32 +174,28 @@ public class FuncionariosFormController implements Initializable {
 		txtEmail.setText(entity.getEmail());
 		Locale.setDefault(Locale.US);
 		txtBaseSalary.setText(String.format("%.2f", entity.getBaseSalary()));
-		if(entity.getBirthDate() != null) {
-		dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
+		if (entity.getBirthDate() != null) {
+			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
 		}
-		if(entity.getDepartamento() == null) {
+		if (entity.getDepartamento() == null) {
 			comboBoxDepartamento.getSelectionModel().selectFirst();
-		}else {
-		comboBoxDepartamento.setValue(entity.getDepartamento());
+		} else {
+			comboBoxDepartamento.setValue(entity.getDepartamento());
 		}
-		
+
 	}
 
 	public void loadAssocietedObjects() {
-		
-		if(departamentoService == null) {
+
+		if (departamentoService == null) {
 			throw new IllegalStateException("DepartametosService esta nulo");
 		}
 		List<Departamentos> list = departamentoService.findAll();
 		obsList = FXCollections.observableArrayList(list);
 		comboBoxDepartamento.setItems(obsList);
-		
+
 	}
-	
-	
-	
-	
-	
+
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
 
@@ -191,20 +204,17 @@ public class FuncionariosFormController implements Initializable {
 		}
 
 	}
-	
-	
+
 	private void initializeComboBoxDepartamentos() {
-		 Callback<ListView<Departamentos>, ListCell<Departamentos>> factory = lv -> new ListCell<Departamentos>() {
-		 @Override
-		 protected void updateItem(Departamentos item, boolean empty) {
-		 super.updateItem(item, empty);
-		 setText(empty ? "" : item.getName());
-		 }
-		 };
+		Callback<ListView<Departamentos>, ListCell<Departamentos>> factory = lv -> new ListCell<Departamentos>() {
+			@Override
+			protected void updateItem(Departamentos item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty ? "" : item.getName());
+			}
+		};
 		comboBoxDepartamento.setCellFactory(factory);
 		comboBoxDepartamento.setButtonCell(factory.call(null));
-		} 
-
-	
+	}
 
 }

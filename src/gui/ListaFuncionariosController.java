@@ -94,7 +94,6 @@ public class ListaFuncionariosController implements Initializable, DataChangeLis
 		tableColumnBaseSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
 		Utils.formatTableColumnDouble(tableColumnBaseSalary, 2);
 		
-		//tableColumnDepartamento.setCellValueFactory(new PropertyValueFactory<>("nDep"));
 		// metodo para fazer Table View acompanhar tamanho da janela
 		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewFuncionarios.prefHeightProperty().bind(stage.heightProperty());
